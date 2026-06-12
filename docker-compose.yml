@@ -1,13 +1,5 @@
-# Laboratorio de Observabilidad — Infraestructura como Código
-# Levanta apps (backend + frontend) y el stack completo: Prometheus, Loki,
-# Alloy, Grafana, node-exporter y cAdvisor.
-#
-#   docker compose up -d --build      # levantar todo
-#   docker compose down               # detener (conserva dashboards de Grafana)
-#   docker compose down -v            # detener y borrar datos (reset total)
-
 services:
-  # ----------------------------- Aplicaciones -----------------------------
+
   backend:
     build: ./apps/backend
     container_name: lab-backend
@@ -26,7 +18,6 @@ services:
       - backend
     restart: unless-stopped
 
-  # ----------------------------- Métricas -----------------------------
   prometheus:
     image: prom/prometheus:v3.8.1
     container_name: lab-prometheus
@@ -39,16 +30,20 @@ services:
       - "9090:9090"
     restart: unless-stopped
 
-node-exporter:
-  image: prom/node-exporter:v1.8.2
-  ports:
-    - "9100:9100"
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: lab-node-exporter
+    ports:
+      - "9100:9100"
+    restart: unless-stopped
 
-cadvisor:
-  image: gcr.io/cadvisor/cadvisor:v0.49.1
-  ports:
-    - "8081:8080"
-  # ----------------------------- Logs -----------------------------
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: lab-cadvisor
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
+
   loki:
     image: grafana/loki:3.4.0
     container_name: lab-loki
@@ -75,7 +70,6 @@ cadvisor:
       - loki
     restart: unless-stopped
 
-  # ----------------------------- Visualización -----------------------------
   grafana:
     image: grafana/grafana:12.4.0
     container_name: lab-grafana
